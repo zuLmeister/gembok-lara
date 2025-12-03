@@ -42,6 +42,7 @@ class DatabaseSeeder extends Seeder
             // Customers & Invoices
             CustomerSeeder::class,
             InvoiceSeeder::class,
+            PaymentSeeder::class,
             
             // Cable & ONU
             CableRouteSeeder::class,

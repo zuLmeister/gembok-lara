@@ -108,6 +108,11 @@
         <div class="border-t border-cyan-500/20 my-3"></div>
         <p class="px-4 text-xs text-cyan-300/60 uppercase tracking-wider mb-2">System</p>
         
+        <a href="{{ route('admin.reports.index') }}" class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-white hover:bg-opacity-10 rounded-lg transition {{ request()->routeIs('admin.reports.*') ? 'bg-white bg-opacity-20 text-white' : '' }}">
+            <i class="fas fa-chart-bar w-5 mr-3"></i>
+            <span>Reports</span>
+        </a>
+        
         <a href="{{ route('admin.settings') }}" class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-white hover:bg-opacity-10 rounded-lg transition {{ request()->routeIs('admin.settings') ? 'bg-white bg-opacity-20 text-white' : '' }}">
             <i class="fas fa-cog w-5 mr-3"></i>
             <span>Settings</span>

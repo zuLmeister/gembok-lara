@@ -14,8 +14,8 @@ use App\Http\Controllers\Admin\OdpController;
 
 // Public Routes
 Route::get('/', function () {
-    return redirect('/admin/login');
-});
+    return view('welcome');
+})->name('home');
 
 // Default login route (redirect to admin login)
 Route::get('/login', function () {
@@ -126,6 +126,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/check-status', [\App\Http\Controllers\Admin\PaymentController::class, 'checkStatus'])->name('check-status');
             Route::post('/send-link/{invoice}', [\App\Http\Controllers\Admin\PaymentController::class, 'sendPaymentLink'])->name('send-link');
         });
+        
+        // Reports
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('index');
+            Route::get('/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('export');
+        });
     });
 });
 
@@ -134,11 +140,18 @@ Route::prefix('agent')->name('agent.')->group(function () {
     Route::get('/login', function () {
         return view('agent.login');
     })->name('login');
+    Route::post('/login', [\App\Http\Controllers\Portal\AgentController::class, 'login'])->name('login.post');
     
     Route::middleware(['auth'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('agent.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Portal\AgentController::class, 'dashboard'])->name('dashboard');
+        Route::post('/logout', [\App\Http\Controllers\Portal\AgentController::class, 'logout'])->name('logout');
+        Route::get('/vouchers/sell', [\App\Http\Controllers\Portal\AgentController::class, 'sellVoucher'])->name('vouchers.sell');
+        Route::post('/vouchers/sell', [\App\Http\Controllers\Portal\AgentController::class, 'processSale'])->name('vouchers.process');
+        Route::get('/topup', [\App\Http\Controllers\Portal\AgentController::class, 'topup'])->name('topup');
+        Route::post('/topup', [\App\Http\Controllers\Portal\AgentController::class, 'processTopup'])->name('topup.process');
+        Route::get('/transactions', [\App\Http\Controllers\Portal\AgentController::class, 'transactions'])->name('transactions');
+        Route::get('/profile', [\App\Http\Controllers\Portal\AgentController::class, 'profile'])->name('profile');
+        Route::post('/profile', [\App\Http\Controllers\Portal\AgentController::class, 'updateProfile'])->name('profile.update');
     });
 });
 
@@ -147,11 +160,16 @@ Route::prefix('collector')->name('collector.')->group(function () {
     Route::get('/login', function () {
         return view('collector.login');
     })->name('login');
+    Route::post('/login', [\App\Http\Controllers\Portal\CollectorController::class, 'login'])->name('login.post');
     
     Route::middleware(['auth'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('collector.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Portal\CollectorController::class, 'dashboard'])->name('dashboard');
+        Route::post('/logout', [\App\Http\Controllers\Portal\CollectorController::class, 'logout'])->name('logout');
+        Route::get('/invoices', [\App\Http\Controllers\Portal\CollectorController::class, 'invoices'])->name('invoices');
+        Route::get('/collect/{invoice?}', [\App\Http\Controllers\Portal\CollectorController::class, 'collect'])->name('collect');
+        Route::post('/collect/{invoice}', [\App\Http\Controllers\Portal\CollectorController::class, 'processPayment'])->name('collect.process');
+        Route::get('/history', [\App\Http\Controllers\Portal\CollectorController::class, 'history'])->name('history');
+        Route::get('/profile', [\App\Http\Controllers\Portal\CollectorController::class, 'profile'])->name('profile');
     });
 });
 
@@ -160,11 +178,18 @@ Route::prefix('technician')->name('technician.')->group(function () {
     Route::get('/login', function () {
         return view('technician.login');
     })->name('login');
+    Route::post('/login', [\App\Http\Controllers\Portal\TechnicianController::class, 'login'])->name('login.post');
     
     Route::middleware(['auth'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('technician.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Portal\TechnicianController::class, 'dashboard'])->name('dashboard');
+        Route::post('/logout', [\App\Http\Controllers\Portal\TechnicianController::class, 'logout'])->name('logout');
+        Route::get('/tasks', [\App\Http\Controllers\Portal\TechnicianController::class, 'tasks'])->name('tasks');
+        Route::get('/tasks/{task}', [\App\Http\Controllers\Portal\TechnicianController::class, 'showTask'])->name('tasks.show');
+        Route::post('/tasks/{task}/update', [\App\Http\Controllers\Portal\TechnicianController::class, 'updateTask'])->name('tasks.update');
+        Route::get('/installations', [\App\Http\Controllers\Portal\TechnicianController::class, 'installations'])->name('installations');
+        Route::get('/repairs', [\App\Http\Controllers\Portal\TechnicianController::class, 'repairs'])->name('repairs');
+        Route::get('/map', [\App\Http\Controllers\Portal\TechnicianController::class, 'map'])->name('map');
+        Route::get('/profile', [\App\Http\Controllers\Portal\TechnicianController::class, 'profile'])->name('profile');
     });
 });
 
@@ -173,11 +198,19 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/login', function () {
         return view('customer.login');
     })->name('login');
+    Route::post('/login', [\App\Http\Controllers\Portal\CustomerController::class, 'login'])->name('login.post');
     
     Route::middleware(['auth'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('customer.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Portal\CustomerController::class, 'dashboard'])->name('dashboard');
+        Route::post('/logout', [\App\Http\Controllers\Portal\CustomerController::class, 'logout'])->name('logout');
+        Route::get('/invoices', [\App\Http\Controllers\Portal\CustomerController::class, 'invoices'])->name('invoices');
+        Route::get('/invoices/{invoice}', [\App\Http\Controllers\Portal\CustomerController::class, 'showInvoice'])->name('invoices.show');
+        Route::get('/payments', [\App\Http\Controllers\Portal\CustomerController::class, 'payments'])->name('payments');
+        Route::post('/pay/{invoice}', [\App\Http\Controllers\Portal\CustomerController::class, 'pay'])->name('pay');
+        Route::get('/profile', [\App\Http\Controllers\Portal\CustomerController::class, 'profile'])->name('profile');
+        Route::post('/profile', [\App\Http\Controllers\Portal\CustomerController::class, 'updateProfile'])->name('profile.update');
+        Route::get('/support', [\App\Http\Controllers\Portal\CustomerController::class, 'support'])->name('support');
+        Route::post('/support', [\App\Http\Controllers\Portal\CustomerController::class, 'submitTicket'])->name('support.submit');
     });
 });
 

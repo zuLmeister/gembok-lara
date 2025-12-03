@@ -23,9 +23,10 @@ class WhatsAppController extends Controller
     public function index()
     {
         $status = $this->whatsapp->checkStatus();
+        $connected = $status && isset($status['connected']) && $status['connected'] === true;
         
         return view('admin.whatsapp.index', [
-            'connected' => $status !== null,
+            'connected' => $connected,
             'status' => $status
         ]);
     }
@@ -182,9 +183,10 @@ class WhatsAppController extends Controller
     public function status()
     {
         $status = $this->whatsapp->checkStatus();
+        $connected = $status && isset($status['connected']) && $status['connected'] === true;
 
         return response()->json([
-            'connected' => $status !== null,
+            'connected' => $connected,
             'data' => $status
         ]);
     }

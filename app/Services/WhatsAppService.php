@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\WhatsappLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -19,28 +20,30 @@ class WhatsAppService
     }
 
     /**
-     * Send WhatsApp message
+     * Send WhatsApp message via Fonnte API
      */
     public function send($phone, $message)
     {
         try {
             $phone = $this->formatPhone($phone);
 
+            // Fonnte API format
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->apiUrl . '/send-message', [
-                'phone' => $phone,
+                'Authorization' => $this->apiKey,
+            ])->asForm()->post($this->apiUrl . '/send', [
+                'target' => $phone,
                 'message' => $message,
-                'sender' => $this->sender,
+                'countryCode' => '62',
             ]);
 
-            if ($response->successful()) {
-                Log::info('WhatsApp message sent', ['phone' => $phone]);
+            $result = $response->json();
+
+            if ($response->successful() && isset($result['status']) && $result['status'] === true) {
+                Log::info('WhatsApp message sent via Fonnte', ['phone' => $phone]);
                 return [
                     'success' => true,
                     'message' => 'Message sent successfully',
-                    'data' => $response->json()
+                    'data' => $result
                 ];
             }
 
@@ -51,7 +54,7 @@ class WhatsAppService
 
             return [
                 'success' => false,
-                'message' => 'Failed to send message',
+                'message' => $result['reason'] ?? 'Failed to send message',
                 'error' => $response->body()
             ];
         } catch (\Exception $e) {
@@ -78,7 +81,9 @@ class WhatsAppService
         $message .= "Terima kasih,\n";
         $message .= "*" . config('app.name') . "*";
 
-        return $this->send($customer->phone, $message);
+        $result = $this->send($customer->phone, $message);
+        $this->logMessage($customer->phone, 'invoice', $message, $result, $customer->id, $invoice->id);
+        return $result;
     }
 
     /**
@@ -135,7 +140,9 @@ class WhatsAppService
         $message .= "Mohon segera lakukan pembayaran untuk menghindari pemutusan layanan.\n\n";
         $message .= "*" . config('app.name') . "*";
 
-        return $this->send($customer->phone, $message);
+        $result = $this->send($customer->phone, $message);
+        $this->logMessage($customer->phone, 'reminder', $message, $result, $customer->id, $invoice->id);
+        return $result;
     }
 
     /**
@@ -149,7 +156,30 @@ class WhatsAppService
         $message .= "Silakan hubungi kami atau lakukan pembayaran untuk mengaktifkan kembali layanan Anda.\n\n";
         $message .= "*" . config('app.name') . "*";
 
-        return $this->send($customer->phone, $message);
+        $result = $this->send($customer->phone, $message);
+        $this->logMessage($customer->phone, 'suspension', $message, $result, $customer->id);
+        return $result;
+    }
+
+    /**
+     * Log WhatsApp message
+     */
+    protected function logMessage($phone, $type, $message, $result, $customerId = null, $invoiceId = null)
+    {
+        try {
+            WhatsappLog::create([
+                'phone' => $phone,
+                'type' => $type,
+                'customer_id' => $customerId,
+                'invoice_id' => $invoiceId,
+                'message' => $message,
+                'status' => $result['success'] ? 'sent' : 'failed',
+                'response' => $result['data'] ?? null,
+                'error_message' => $result['success'] ? null : ($result['message'] ?? 'Unknown error'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to log WhatsApp message: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -171,18 +201,42 @@ class WhatsAppService
     }
 
     /**
-     * Check connection status
+     * Check connection status via Fonnte API
      */
     public function checkStatus()
     {
         try {
+            // Fonnte device status endpoint
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-            ])->get($this->apiUrl . '/status');
+                'Authorization' => $this->apiKey,
+            ])->post($this->apiUrl . '/device');
 
-            return $response->successful() ? $response->json() : null;
+            $result = $response->json();
+
+            if ($response->successful() && isset($result['status']) && $result['status'] === true) {
+                return [
+                    'connected' => true,
+                    'device' => $result['device'] ?? null,
+                    'status' => $result
+                ];
+            }
+
+            return [
+                'connected' => false,
+                'message' => $result['reason'] ?? 'Device not connected'
+            ];
         } catch (\Exception $e) {
+            Log::error('WhatsApp status check failed: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Check if service is connected
+     */
+    public function isConnected()
+    {
+        $status = $this->checkStatus();
+        return $status && isset($status['connected']) && $status['connected'] === true;
     }
 }

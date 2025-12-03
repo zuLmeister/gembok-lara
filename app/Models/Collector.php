@@ -8,11 +8,14 @@ class Collector extends Model
 {
     protected $fillable = [
         'name',
+        'username',
         'phone',
         'email',
         'commission_rate',
         'status',
         'password',
+        'area',
+        'user_id',
     ];
 
     protected $casts = [
@@ -22,4 +25,14 @@ class Collector extends Model
     protected $hidden = [
         'password',
     ];
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
