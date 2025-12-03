@@ -80,6 +80,29 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Settings
         Route::get('/settings', [SettingController::class, 'index'])->name('settings');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+        
+        // Mikrotik Management
+        Route::prefix('mikrotik')->name('mikrotik.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\MikrotikController::class, 'index'])->name('index');
+            Route::get('/pppoe-active', [\App\Http\Controllers\Admin\MikrotikController::class, 'pppoeActive'])->name('pppoe.active');
+            Route::get('/hotspot-active', [\App\Http\Controllers\Admin\MikrotikController::class, 'hotspotActive'])->name('hotspot.active');
+            Route::post('/disconnect', [\App\Http\Controllers\Admin\MikrotikController::class, 'disconnect'])->name('disconnect');
+            Route::get('/system-resource', [\App\Http\Controllers\Admin\MikrotikController::class, 'systemResource'])->name('system.resource');
+            Route::get('/traffic-stats', [\App\Http\Controllers\Admin\MikrotikController::class, 'trafficStats'])->name('traffic.stats');
+            Route::get('/test-connection', [\App\Http\Controllers\Admin\MikrotikController::class, 'testConnection'])->name('test');
+        });
+        
+        // CPE Management (GenieACS)
+        Route::prefix('cpe')->name('cpe.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\CpeController::class, 'index'])->name('index');
+            Route::get('/{deviceId}', [\App\Http\Controllers\Admin\CpeController::class, 'show'])->name('show');
+            Route::post('/{deviceId}/reboot', [\App\Http\Controllers\Admin\CpeController::class, 'reboot'])->name('reboot');
+            Route::post('/{deviceId}/refresh', [\App\Http\Controllers\Admin\CpeController::class, 'refresh'])->name('refresh');
+            Route::post('/{deviceId}/factory-reset', [\App\Http\Controllers\Admin\CpeController::class, 'factoryReset'])->name('factory-reset');
+            Route::post('/{deviceId}/wifi', [\App\Http\Controllers\Admin\CpeController::class, 'updateWifi'])->name('wifi.update');
+            Route::post('/bulk-reboot', [\App\Http\Controllers\Admin\CpeController::class, 'bulkReboot'])->name('bulk.reboot');
+            Route::post('/bulk-refresh', [\App\Http\Controllers\Admin\CpeController::class, 'bulkRefresh'])->name('bulk.refresh');
+        });
     });
 });
 

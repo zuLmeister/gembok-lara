@@ -110,6 +110,45 @@
 - **Email Configuration**: Setup SMTP untuk email
 - **System Preferences**: Pengaturan umum sistem
 
+### 🔌 **Mikrotik Integration** (Coming Soon)
+- **PPPoE Management**: 
+  - Auto create/update PPPoE secrets
+  - Bandwidth control real-time
+  - User authentication sync
+  - Profile mapping dari package
+- **Hotspot Management**:
+  - Voucher generation & activation
+  - User session monitoring
+  - Bandwidth limitation per user
+  - Active connections tracking
+- **API Integration**:
+  - RouterOS API connection
+  - Real-time bandwidth monitoring
+  - User online/offline status
+  - Traffic statistics per user
+
+### 📡 **GenieACS Integration** (Coming Soon)
+- **CPE Management**:
+  - Centralized device management
+  - Remote configuration & provisioning
+  - Firmware upgrade management
+  - Device status monitoring
+- **Remote Control**:
+  - Reboot devices from dashboard
+  - Factory reset capability
+  - WiFi settings management
+  - Port forwarding configuration
+- **Monitoring**:
+  - Device online/offline status
+  - Signal strength monitoring
+  - Connection quality metrics
+  - Diagnostic tools (ping, traceroute)
+- **Auto Provisioning**:
+  - Template-based configuration
+  - Bulk device setup
+  - CWMP/TR-069 protocol support
+  - Configuration backup & restore
+
 ---
 
 ## 🗄️ **Database Seeders**
@@ -284,19 +323,58 @@ GEMBOK LARA dibangun dengan standar keamanan Laravel:
 
 ---
 
+## �️ Roademap
+
+### Phase 1 - Core System ✅ (Completed)
+- ✅ Customer & Package Management
+- ✅ Invoice & Billing System
+- ✅ Agent & Staff Management
+- ✅ Network Infrastructure (ODP)
+- ✅ Voucher System
+- ✅ Analytics Dashboard
+- ✅ Modern UI/UX
+
+### Phase 2 - Integration (In Progress)
+- 🔄 Mikrotik PPPoE Integration
+- 🔄 Mikrotik Hotspot Integration
+- 🔄 GenieACS CPE Management
+- 🔄 WhatsApp Gateway Integration
+- 🔄 Payment Gateway (Midtrans/Xendit)
+
+### Phase 3 - Advanced Features (Planned)
+- 📋 Customer Portal
+- 📋 Mobile App (Flutter)
+- 📋 API Documentation
+- 📋 Multi-tenant Support
+- 📋 Advanced Reporting
+- 📋 Automated Billing
+- 📋 SMS Gateway Integration
+
+### Phase 4 - Enterprise Features (Future)
+- 📋 RADIUS Server Integration
+- 📋 Network Monitoring (SNMP)
+- 📋 Ticketing System
+- 📋 CRM Integration
+- 📋 Accounting Integration
+- 📋 Multi-language Support
+
+---
+
 ## 📝 Changelog
 
-### Version 1.0.0 (Current)
+### Version 1.0.0 (Current - December 2024)
 - ✅ Complete CRUD for all modules
 - ✅ Modern UI with Cyan/Blue theme
 - ✅ Interactive dashboard with Chart.js
 - ✅ Network map with Leaflet.js
-- ✅ 23 database seeders
-- ✅ Responsive design
+- ✅ 23 database seeders with realistic data
+- ✅ Fully responsive design
 - ✅ Print-ready invoice template
 - ✅ Agent management system
 - ✅ Voucher system
 - ✅ ODP & network management
+- ✅ Customer detail with statistics
+- ✅ Revenue & growth analytics
 
 ---
 

@@ -1,0 +1,347 @@
+<?php
+
+namespace App\Services;
+
+use RouterOS\Client;
+use RouterOS\Query;
+use Illuminate\Support\Facades\Log;
+
+class MikrotikService
+{
+    protected $client;
+    protected $connected = false;
+
+    public function __construct()
+    {
+        try {
+            $this->client = new Client([
+                'host' => config('services.mikrotik.host'),
+                'user' => config('services.mikrotik.username'),
+                'pass' => config('services.mikrotik.password'),
+                'port' => config('services.mikrotik.port', 8728),
+            ]);
+            $this->connected = true;
+        } catch (\Exception $e) {
+            Log::error('Mikrotik connection failed: ' . $e->getMessage());
+            $this->connected = false;
+        }
+    }
+
+    public function isConnected()
+    {
+        return $this->connected;
+    }
+
+    // ==================== PPPoE Management ====================
+
+    public function createPPPoESecret($data)
+    {
+        if (!$this->connected) {
+            return false;
+        }
+
+        try {
+            $query = new Query('/ppp/secret/add');
+            $query->equal('name', $data['username']);
+            $query->equal('password', $data['password']);
+            $query->equal('service', 'pppoe');
+            $query->equal('profile', $data['profile'] ?? 'default');
+            
+            if (isset($data['local_address'])) {
+                $query->equal('local-address', $data['local_address']);
+            }
+            
+            if (isset($data['remote_address'])) {
+                $query->equal('remote-address', $data['remote_address']);
+            }
+            
+            $query->equal('comment', $data['comment'] ?? '');
+
+            $response = $this->client->query($query)->read();
+            
+            Log::info('PPPoE Secret created', ['username' => $data['username']]);
+            return $response;
+        } catch (\Exception $e) {
+            Log::error('Failed to create PPPoE secret: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updatePPPoESecret($username, $data)
+    {
+        if (!$this->connected) {
+            return false;
+        }
+
+        try {
+            // Find secret ID
+            $query = new Query('/ppp/secret/print');
+            $query->where('name', $username);
+            $secrets = $this->client->query($query)->read();
+
+            if (empty($secrets)) {
+                return false;
+            }
+
+            $secretId = $secrets[0]['.id'];
+
+            // Update secret
+            $query = new Query('/ppp/secret/set');
+            $query->equal('.id', $secretId);
+            
+            if (isset($data['password'])) {
+                $query->equal('password', $data['password']);
+            }
+            
+            if (isset($data['profile'])) {
+                $query->equal('profile', $data['profile']);
+            }
+            
+            if (isset($data['comment'])) {
+                $query->equal('comment', $data['comment']);
+            }
+
+            $this->client->query($query)->read();
+            
+            Log::info('PPPoE Secret updated', ['username' => $username]);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to update PPPoE secret: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deletePPPoESecret($username)
+    {
+        if (!$this->connected) {
+            return false;
+        }
+
+        try {
+            $query = new Query('/ppp/secret/print');
+            $query->where('name', $username);
+            $secrets = $this->client->query($query)->read();
+
+            if (empty($secrets)) {
+                return false;
+            }
+
+            $secretId = $secrets[0]['.id'];
+
+            $query = new Query('/ppp/secret/remove');
+            $query->equal('.id', $secretId);
+            $this->client->query($query)->read();
+            
+            Log::info('PPPoE Secret deleted', ['username' => $username]);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to delete PPPoE secret: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getPPPoEActive()
+    {
+        if (!$this->connected) {
+            return [];
+        }
+
+        try {
+            $query = new Query('/ppp/active/print');
+            $active = $this->client->query($query)->read();
+            
+            return collect($active)->map(function ($session) {
+                return [
+                    'id' => $session['.id'] ?? null,
+                    'name' => $session['name'] ?? null,
+                    'address' => $session['address'] ?? null,
+                    'uptime' => $session['uptime'] ?? null,
+                    'caller_id' => $session['caller-id'] ?? null,
+                    'service' => $session['service'] ?? null,
+                ];
+            })->toArray();
+        } catch (\Exception $e) {
+            Log::error('Failed to get PPPoE active: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function disconnectPPPoE($username)
+    {
+        if (!$this->connected) {
+            return false;
+        }
+
+        try {
+            $query = new Query('/ppp/active/print');
+            $query->where('name', $username);
+            $active = $this->client->query($query)->read();
+
+            if (empty($active)) {
+                return false;
+            }
+
+            $sessionId = $active[0]['.id'];
+
+            $query = new Query('/ppp/active/remove');
+            $query->equal('.id', $sessionId);
+            $this->client->query($query)->read();
+            
+            Log::info('PPPoE disconnected', ['username' => $username]);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to disconnect PPPoE: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ==================== Profile Management ====================
+
+    public function createPPPoEProfile($data)
+    {
+        if (!$this->connected) {
+            return false;
+        }
+
+        try {
+            $query = new Query('/ppp/profile/add');
+            $query->equal('name', $data['name']);
+            $query->equal('local-address', $data['local_address'] ?? 'pool-pppoe');
+            $query->equal('remote-address', $data['remote_address'] ?? 'pool-pppoe');
+            
+            if (isset($data['rate_limit'])) {
+                $query->equal('rate-limit', $data['rate_limit']);
+            }
+
+            $this->client->query($query)->read();
+            
+            Log::info('PPPoE Profile created', ['name' => $data['name']]);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to create PPPoE profile: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ==================== Hotspot Management ====================
+
+    public function createHotspotUser($data)
+    {
+        if (!$this->connected) {
+            return false;
+        }
+
+        try {
+            $query = new Query('/ip/hotspot/user/add');
+            $query->equal('name', $data['username']);
+            $query->equal('password', $data['password']);
+            $query->equal('profile', $data['profile'] ?? 'default');
+            
+            if (isset($data['limit_uptime'])) {
+                $query->equal('limit-uptime', $data['limit_uptime']);
+            }
+            
+            if (isset($data['limit_bytes_total'])) {
+                $query->equal('limit-bytes-total', $data['limit_bytes_total']);
+            }
+            
+            $query->equal('comment', $data['comment'] ?? '');
+
+            $this->client->query($query)->read();
+            
+            Log::info('Hotspot user created', ['username' => $data['username']]);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to create hotspot user: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getHotspotActive()
+    {
+        if (!$this->connected) {
+            return [];
+        }
+
+        try {
+            $query = new Query('/ip/hotspot/active/print');
+            $active = $this->client->query($query)->read();
+            
+            return collect($active)->map(function ($session) {
+                return [
+                    'id' => $session['.id'] ?? null,
+                    'user' => $session['user'] ?? null,
+                    'address' => $session['address'] ?? null,
+                    'mac_address' => $session['mac-address'] ?? null,
+                    'uptime' => $session['uptime'] ?? null,
+                    'bytes_in' => $session['bytes-in'] ?? 0,
+                    'bytes_out' => $session['bytes-out'] ?? 0,
+                ];
+            })->toArray();
+        } catch (\Exception $e) {
+            Log::error('Failed to get hotspot active: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    // ==================== Monitoring ====================
+
+    public function getSystemResource()
+    {
+        if (!$this->connected) {
+            return null;
+        }
+
+        try {
+            $query = new Query('/system/resource/print');
+            $resource = $this->client->query($query)->read();
+            
+            return $resource[0] ?? null;
+        } catch (\Exception $e) {
+            Log::error('Failed to get system resource: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function getInterfaces()
+    {
+        if (!$this->connected) {
+            return [];
+        }
+
+        try {
+            $query = new Query('/interface/print');
+            return $this->client->query($query)->read();
+        } catch (\Exception $e) {
+            Log::error('Failed to get interfaces: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getTrafficStats($interface = 'ether1')
+    {
+        if (!$this->connected) {
+            return null;
+        }
+
+        try {
+            $query = new Query('/interface/print');
+            $query->where('name', $interface);
+            $result = $this->client->query($query)->read();
+            
+            if (empty($result)) {
+                return null;
+            }
+
+            return [
+                'rx_bytes' => $result[0]['rx-byte'] ?? 0,
+                'tx_bytes' => $result[0]['tx-byte'] ?? 0,
+                'rx_packets' => $result[0]['rx-packet'] ?? 0,
+                'tx_packets' => $result[0]['tx-packet'] ?? 0,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Failed to get traffic stats: ' . $e->getMessage());
+            return null;
+        }
+    }
+}
