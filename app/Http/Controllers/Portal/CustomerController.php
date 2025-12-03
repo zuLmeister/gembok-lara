@@ -20,7 +20,8 @@ class CustomerController extends Controller
         ]);
 
         $customer = Customer::where('pppoe_username', $request->username)
-            ->orWhere('customer_id', $request->username)
+            ->orWhere('phone', $request->username)
+            ->orWhere('email', $request->username)
             ->first();
 
         if ($customer && Hash::check($request->password, $customer->pppoe_password)) {
