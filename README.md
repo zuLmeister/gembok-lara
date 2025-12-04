@@ -110,44 +110,39 @@
 - **Email Configuration**: Setup SMTP untuk email
 - **System Preferences**: Pengaturan umum sistem
 
-### 🔌 **Mikrotik Integration** (Coming Soon)
-- **PPPoE Management**: 
-  - Auto create/update PPPoE secrets
-  - Bandwidth control real-time
-  - User authentication sync
-  - Profile mapping dari package
-- **Hotspot Management**:
-  - Voucher generation & activation
-  - User session monitoring
-  - Bandwidth limitation per user
-  - Active connections tracking
-- **API Integration**:
-  - RouterOS API connection
-  - Real-time bandwidth monitoring
-  - User online/offline status
-  - Traffic statistics per user
+### 🔌 **Mikrotik Integration**
+- **PPPoE Management**: Auto create/update/delete secrets, profile mapping, disconnect users
+- **Hotspot Management**: User sessions, active connections, traffic monitoring
+- **System Monitoring**: CPU, memory, uptime, interface statistics
+- **Auto-sync**: Customer credentials sync with Mikrotik on create/update
 
-### 📡 **GenieACS Integration** (Coming Soon)
-- **CPE Management**:
-  - Centralized device management
-  - Remote configuration & provisioning
-  - Firmware upgrade management
-  - Device status monitoring
-- **Remote Control**:
-  - Reboot devices from dashboard
-  - Factory reset capability
-  - WiFi settings management
-  - Port forwarding configuration
-- **Monitoring**:
-  - Device online/offline status
-  - Signal strength monitoring
-  - Connection quality metrics
-  - Diagnostic tools (ping, traceroute)
-- **Auto Provisioning**:
-  - Template-based configuration
-  - Bulk device setup
-  - CWMP/TR-069 protocol support
-  - Configuration backup & restore
+### 📡 **GenieACS CPE Management**
+- **Device Management**: List, view details, status monitoring (online/offline)
+- **Remote Control**: Reboot, factory reset, refresh data, WiFi settings
+- **Bulk Operations**: Bulk reboot, bulk refresh for multiple devices
+- **TR-069 Protocol**: Full CWMP support for CPE provisioning
+
+### 🛡️ **RADIUS Server Integration**
+- **User Management**: Create, update, delete RADIUS users
+- **Group/Profile**: Bandwidth profiles with rate limits
+- **Session Monitoring**: Online users, session history (radacct)
+- **CoA Support**: Disconnect and suspend/unsuspend users
+
+### 📊 **SNMP Network Monitoring**
+- **Device Monitoring**: System info, uptime, description
+- **Traffic Statistics**: Interface in/out bandwidth (bps)
+- **Resource Usage**: CPU and memory monitoring
+- **Connectivity**: Ping and status checks
+
+### 🔗 **CRM Integration**
+- **Providers**: HubSpot, Salesforce, Zoho CRM
+- **Features**: Contact sync, deal creation, activity logging
+- **Bulk Sync**: Sync all customers to CRM
+
+### 💼 **Accounting Integration**
+- **Providers**: Accurate Online, Jurnal.id, Zahir
+- **Features**: Customer sync, invoice sync, payment recording
+- **Bulk Sync**: Sync all data to accounting software
 
 ---
 
@@ -323,46 +318,87 @@ GEMBOK LARA dibangun dengan standar keamanan Laravel:
 
 ---
 
-## �️ Roademap
+## 🗺️ Roadmap & Progress
 
-### Phase 1 - Core System ✅ (Completed)
-- ✅ Customer & Package Management
-- ✅ Invoice & Billing System
-- ✅ Agent & Staff Management
-- ✅ Network Infrastructure (ODP)
-- ✅ Voucher System
-- ✅ Analytics Dashboard
-- ✅ Modern UI/UX
+### Phase 1 - Core System ✅ 100% Complete
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Customer Management | ✅ | CRUD, search, filter, status management |
+| Package Management | ✅ | Pricing, bandwidth, PPPoE profile mapping |
+| Invoice & Billing | ✅ | Auto-generate, print, payment tracking |
+| Agent System | ✅ | Balance, transactions, voucher sales |
+| Staff Management | ✅ | Technicians, collectors, area coverage |
+| Voucher System | ✅ | Pricing, generation, online settings |
+| Network Infrastructure | ✅ | ODP, cable routes, ONU devices |
+| Analytics Dashboard | ✅ | Charts, statistics, real-time data |
+| Modern UI/UX | ✅ | Tailwind CSS, responsive, dark sidebar |
 
-### Phase 2 - Integration (In Progress)
-- 🔄 Mikrotik PPPoE Integration
-- 🔄 Mikrotik Hotspot Integration
-- 🔄 GenieACS CPE Management
-- 🔄 WhatsApp Gateway Integration
-- 🔄 Payment Gateway (Midtrans/Xendit)
+### Phase 2 - Integration ✅ 100% Complete
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Mikrotik PPPoE | ✅ | Auto-sync secrets, profiles, disconnect |
+| Mikrotik Hotspot | ✅ | User management, active sessions |
+| GenieACS CPE | ✅ | TR-069, reboot, WiFi config, bulk ops |
+| WhatsApp Gateway | ✅ | Fonnte/WaBlas, invoice notif, reminders |
+| Payment Gateway | ✅ | Midtrans & Xendit, webhooks, auto-activate |
+| Public Order System | ✅ | Package selection, payment, tracking |
 
-### Phase 3 - Advanced Features (Planned)
-- 📋 Customer Portal
-- 📋 Mobile App (Flutter)
-- 📋 API Documentation
-- 📋 Multi-tenant Support
-- 📋 Advanced Reporting
-- 📋 Automated Billing
-- 📋 SMS Gateway Integration
+### Phase 3 - Advanced Features ✅ 100% Complete
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Customer Portal | ✅ | Dashboard, invoices, payments, tickets, usage |
+| Agent Portal | ✅ | Voucher sales, balance, transactions |
+| Collector Portal | ✅ | Invoice collection, payment processing |
+| Technician Portal | ✅ | Tasks, installations, repairs, map |
+| API Documentation | ✅ | Customer & Admin REST API |
+| Advanced Reporting | ✅ | Daily/monthly reports, multi-format export |
+| Automated Billing | ✅ | Auto-generate, reminders, suspend, reactivate |
+| Public Voucher Store | ✅ | Online purchase, WhatsApp delivery |
 
-### Phase 4 - Enterprise Features (Future)
-- 📋 RADIUS Server Integration
-- 📋 Network Monitoring (SNMP)
-- 📋 Ticketing System
-- 📋 CRM Integration
-- 📋 Accounting Integration
-- 📋 Multi-language Support
+### Phase 4 - Enterprise Features ✅ 100% Complete
+| Feature | Status | Description |
+|---------|--------|-------------|
+| RADIUS Server | ✅ | FreeRADIUS, user/group management, CoA |
+| SNMP Monitoring | ✅ | Device status, traffic, CPU/memory |
+| Ticketing System | ✅ | Categories, priorities, assignments |
+| CRM Integration | ✅ | HubSpot, Salesforce, Zoho sync |
+| Accounting Integration | ✅ | Accurate, Jurnal, Zahir sync |
+| Multi-language | ✅ | English & Indonesian, language switcher |
+
+### Phase 5 - Future Enhancements 📋 Planned
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Mobile App | 📋 | Flutter-based mobile application |
+| Multi-tenant | 📋 | Support multiple ISP companies |
+| SMS Gateway | 📋 | SMS notification integration |
+| Email Marketing | 📋 | Promotional email campaigns |
+| SLA Monitoring | 📋 | Service level agreement tracking |
 
 ---
 
 ## 📝 Changelog
 
-### Version 1.0.0 (Current - December 2024)
+### Version 1.2.0 (Current - December 2025)
+- ✅ RADIUS Server Integration (FreeRADIUS)
+- ✅ SNMP Network Monitoring
+- ✅ CRM Integration (HubSpot/Salesforce/Zoho)
+- ✅ Accounting Integration (Accurate/Jurnal/Zahir)
+- ✅ Ticketing System with priorities & assignments
+- ✅ Multi-language Support (EN/ID)
+- ✅ Customer Portal (tickets, usage monitoring)
+- ✅ Advanced Reporting (daily/monthly, CSV/JSON export)
+- ✅ Automated Billing (auto-reactivate, WhatsApp reports)
+- ✅ REST API with documentation
+
+### Version 1.1.0 (November 2025)
+- ✅ Mikrotik PPPoE & Hotspot Integration
+- ✅ GenieACS CPE Management (TR-069)
+- ✅ WhatsApp Gateway Integration
+- ✅ Payment Gateway (Midtrans/Xendit)
+- ✅ Multi-Portal System (Customer, Agent, Collector, Technician)
+- ✅ Public Order & Voucher Store
+
+### Version 1.0.0 (October 2025)
 - ✅ Complete CRUD for all modules
 - ✅ Modern UI with Cyan/Blue theme
 - ✅ Interactive dashboard with Chart.js
