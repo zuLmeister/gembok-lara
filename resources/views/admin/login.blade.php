@@ -189,7 +189,7 @@
                     <div class="flex items-center justify-center text-sm">
                         <i class="fas fa-info-circle text-cyan-600 mr-2"></i>
                         <span class="text-gray-700">
-                            <strong>Default:</strong> admin@gembok.com / password
+                            <strong>Default:</strong> admin@gembok.com / admin123
                         </span>
                     </div>
                 </div>

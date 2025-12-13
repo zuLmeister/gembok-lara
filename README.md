@@ -255,7 +255,7 @@ Akses aplikasi di: `http://localhost:8000`
 
 | Role | Email | Password |
 |------|-------|----------|
-| **Administrator** | `admin@gembok.com` | `password` |
+| **Administrator** | `admin@gembok.com` | `admin123` |
 
 ---
 
